@@ -1,0 +1,27 @@
+version: '3.8'
+
+services:
+  splash-helper:
+    build: .
+    container_name: splash-helper-alerts
+    ports:
+      - "3000:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      JOIN_API_KEY: ${JOIN_API_KEY}
+      JOIN_DEVICE_ID: ${JOIN_DEVICE_ID:-group.all}
+      ACCOUNT_FILTER_ENABLED: ${ACCOUNT_FILTER_ENABLED:-false}
+      ACCOUNT_FILTER_NAMES: ${ACCOUNT_FILTER_NAMES}
+      EVENT_FILTER: ${EVENT_FILTER}
+      EVENT_EXCLUDE: ${EVENT_EXCLUDE}
+      DEBUG: ${DEBUG:-false}
+    volumes:
+      - ./logs:/app/logs
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
